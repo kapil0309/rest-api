@@ -40,7 +40,7 @@ vcsInfo:
   repoUrl: ""
   branch: ""
 
-partOf: atm-locator
+partOf: rest-api
 
 connectsTo: mongo-dev
 
