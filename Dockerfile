@@ -13,8 +13,8 @@ RUN npm install --only=prod
 COPY . .
 
 ENV NODE_ENV production
-ENV PORT 8080
+ENV PORT 3000
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["npm", "start"]
