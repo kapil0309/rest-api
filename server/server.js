@@ -1,36 +1,49 @@
-// import dependencies and initialize express
-const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
-
-const healthRoutes = require('./routes/health-route');
-const swaggerRoutes = require('./routes/swagger-route');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
 
-// enable parsing of http request body
-app.use(bodyParser.urlencoded({ extended: false }));
+app.get('/health',(req,res) => {
+	console.log(" in health " + req.url);
+	res.send({"status":"UP"});
+});
+
+var corsOptions = {
+  origin: "http://localhost:8081"
+};
+
+app.use(cors(corsOptions));
+
+// parse requests of content-type - application/json
 app.use(bodyParser.json());
 
-// routes and api calls
-app.use('/health', healthRoutes);
-app.use('/swagger', swaggerRoutes);
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// default path to serve up index.html (single page application)
-app.all('', (req, res) => {
-  res.status(200).sendFile(path.join(__dirname, '../public', 'index.html'));
+const db = require("./models");
+db.mongoose
+  .connect(db.url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+  });
+
+// simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to bezkoder application." });
 });
 
-// start node server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`App UI available http://localhost:${port}`);
-  console.log(`Swagger UI available http://localhost:${port}/swagger/api-docs`);
-});
+require("./routes/student.routes")(app);
 
-// error handler for unmatched routes or api calls
-app.use((req, res, next) => {
-  res.sendFile(path.join(__dirname, '../public', '404.html'));
+// set port, listen for requests
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
 });
-
-module.exports = app;
